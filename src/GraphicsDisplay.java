@@ -31,16 +31,12 @@ public class GraphicsDisplay extends JPanel {
     private Zone zone = new Zone();
     private int[][] graphicsDataI;
     private boolean transform = false;
-    private boolean showGrid = true;
-    private boolean PPP = false;
-    private boolean zoom=false;
+    private boolean zoom = false;
     private boolean selMode = false;
     private boolean dragMode = false;
     private double scaleX;
     private double scaleY;
     private DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance();
-    private BasicStroke gridStroke;
-    private BasicStroke hatchStroke;
     private BasicStroke selStroke;
     private Font captionFont;
     private int mausePX = 0;
@@ -79,9 +75,7 @@ public class GraphicsDisplay extends JPanel {
         markerStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, null, 0.0f);
         axisFont = new Font("Serif", Font.BOLD, 36);
 
-        gridStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, null, 0.0f);
-        hatchStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, null, 0.0f);
-        selStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 8, 8 }, 0.0f);
+        selStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{8, 8}, 0.0f);
         captionFont = new Font("Serif", Font.BOLD, 10);
         MouseMotionHandler mouseMotionHandler = new MouseMotionHandler();
         addMouseMotionListener(mouseMotionHandler);
@@ -125,10 +119,10 @@ public class GraphicsDisplay extends JPanel {
         minX = graphicsData[0][0];
         maxX = graphicsData[graphicsData.length - 1][0];
 
-        if (zone.use) {// && zone.MINX>minX){
+        if (zone.use) {
             minX = zone.MINX;
         }
-        if (zone.use) {// && zone.MAXX<maxX){
+        if (zone.use) {
             maxX = zone.MAXX;
         }
 
@@ -146,10 +140,10 @@ public class GraphicsDisplay extends JPanel {
             }
         }
 
-        if (zone.use) {// && zone.MINY>minY){
+        if (zone.use) {
             minY = zone.MINY;
         }
-        if (zone.use) {// && zone.MAXY<maxY){
+        if (zone.use) {
             maxY = zone.MAXY;
         }
 
@@ -174,13 +168,15 @@ public class GraphicsDisplay extends JPanel {
         scale = Math.min(scaleX, scaleY);
 
 // Шаг 6 - корректировка границ отображаемой области согласно выбранному масштабу
-        if(!zoom){
+        if (!zoom) {
             if (scale == scaleX) {
                 double yIncrement = 0;
-                if (!transform)
+                if (!transform) {
                     yIncrement = (getSize().getHeight() / scale - (maxY - minY)) / 2;
-                else
+                } else {
                     yIncrement = (getSize().getWidth() / scale - (maxY - minY)) / 2;
+
+                }
                 maxY += yIncrement;
                 minY -= yIncrement;
             }
@@ -188,13 +184,11 @@ public class GraphicsDisplay extends JPanel {
                 double xIncrement = 0;
                 if (!transform) {
                     xIncrement = (getSize().getWidth() / scale - (maxX - minX)) / 2;
-                    maxX += xIncrement;
-                    minX -= xIncrement;
                 } else {
                     xIncrement = (getSize().getHeight() / scale - (maxX - minX)) / 2;
-                    maxX += xIncrement;
-                    minX -= xIncrement;
                 }
+                maxX += xIncrement;
+                minX -= xIncrement;
             }
         }
 
@@ -235,7 +229,7 @@ public class GraphicsDisplay extends JPanel {
         label.append(formatter.format((SMP.yd)));
         label.append(")");
         FontRenderContext context = canvas.getFontRenderContext();
-        Rectangle2D bounds = captionFont.getStringBounds(label.toString(),context);
+        Rectangle2D bounds = captionFont.getStringBounds(label.toString(), context);
         if (!transform) {
             int dy = -10;
             int dx = +7;
@@ -243,7 +237,7 @@ public class GraphicsDisplay extends JPanel {
                 dy = +13;
             if (getWidth() < bounds.getWidth() + SMP.x + 20)
                 dx = -(int) bounds.getWidth() - 15;
-            canvas.drawString (label.toString(), SMP.x + dx, SMP.y + dy);
+            canvas.drawString(label.toString(), SMP.x + dx, SMP.y + dy);
         } else {
             int dy = 10;
             int dx = -7;
@@ -251,7 +245,7 @@ public class GraphicsDisplay extends JPanel {
                 dx = +13;
             if (SMP.y < bounds.getWidth() + 20)
                 dy = -(int) bounds.getWidth() - 15;
-            canvas.drawString (label.toString(), getHeight() - SMP.y + dy, SMP.x + dx);
+            canvas.drawString(label.toString(), getHeight() - SMP.y + dy, SMP.x + dx);
         }
         canvas.setColor(oldColor);
     }
@@ -319,7 +313,7 @@ public class GraphicsDisplay extends JPanel {
         canvas.setStroke(lineStroke);
         canvas.setColor(Color.CYAN);
 
-        Double difference =maxY - minY;
+        Double difference = maxY - minY;
 
         Point2D.Double center10_min = xyToPoint(minX, minY + 0.1 * difference);
         Point2D.Double center10_max = xyToPoint(maxX, minY + 0.1 * difference);
@@ -420,7 +414,7 @@ public class GraphicsDisplay extends JPanel {
 // Вычисляем смещение Y от точки верхней точки (maxY)
         double deltaY = maxY - y;
 
-        if(!zoom)
+        if (!zoom)
             return new Point2D.Double(deltaX * scale, deltaY * scale);
         else
             return new Point2D.Double(deltaX * scaleX, deltaY * scaleY);
@@ -433,10 +427,10 @@ public class GraphicsDisplay extends JPanel {
             int q = (int) xyToPoint(0, 0).y;
             p.y = maxY - maxY * ((double) y / (double) q);
         } else {
-            if(!zoom){
+            if (!zoom) {
                 p.y = -x / scale + (maxY);
                 p.x = -y / scale + maxX;
-            }else{
+            } else {
                 p.y = -x / scaleY + (maxY);
                 p.x = -y / scaleX + maxX;
             }
@@ -479,7 +473,6 @@ public class GraphicsDisplay extends JPanel {
                     smp.yd = graphicsData[i][1];
                     smp.n = i;
                     if (r < r2) {
-                        r2 = r;
                         smp2 = smp;
                     }
                     return smp2;
@@ -491,7 +484,7 @@ public class GraphicsDisplay extends JPanel {
         public void mouseMoved(MouseEvent ev) {    // показывает координаты точек
             GraphPoint smp;
             smp = find(ev.getX(), ev.getY());
-           // setCursor(Cursor.getPredefinedCursor(0));
+            // setCursor(Cursor.getPredefinedCursor(0));
             if (smp != null) {
                 SMP = smp;
             } else {
@@ -513,13 +506,13 @@ public class GraphicsDisplay extends JPanel {
             }
             if (dragMode) {
                 if (!transform) {
-                    if(pointToXY(e.getX(), e.getY()).y<maxY && pointToXY(e.getX(), e.getY()).y>minY){
+                    if (pointToXY(e.getX(), e.getY()).y < maxY && pointToXY(e.getX(), e.getY()).y > minY) {
                         graphicsData[SMP.n][1] = pointToXY(e.getX(), e.getY()).y;
                         SMP.yd = pointToXY(e.getX(), e.getY()).y;
                         SMP.y = e.getY();
                     }
                 } else {
-                    if(pointToXY(e.getX(), e.getY()).y<maxY && pointToXY(e.getX(), e.getY()).y>minY){
+                    if (pointToXY(e.getX(), e.getY()).y < maxY && pointToXY(e.getX(), e.getY()).y > minY) {
                         graphicsData[SMP.n][1] = pointToXY(e.getX(), e.getY()).y;
                         SMP.yd = pointToXY(e.getX(), e.getY()).y;
                         SMP.x = e.getX();
@@ -536,31 +529,24 @@ public class GraphicsDisplay extends JPanel {
             try {
                 zone = stack.pop();
             } catch (EmptyStackException err) {
-
             }
 
-            if(stack.empty())
-                zoom=false;
+            if (stack.empty())
+                zoom = false;
             repaint();
         }
 
         public void mouseEntered(MouseEvent arg0) {
-
         }
 
         public void mouseExited(MouseEvent arg0) {
-
         }
 
         public void mousePressed(MouseEvent e) {                //показывает область выдиления
-                selMode = true;
-                mausePX = e.getX();
-                mausePY = e.getY();
-                if (!transform)
-                    rect.setFrame(e.getX(), e.getY(), 0, 0);
-                else
-                    rect.setFrame(e.getX(), e.getY(), 0, 0);
-            //}
+            selMode = true;
+            mausePX = e.getX();
+            mausePY = e.getY();
+            rect.setFrame(e.getX(), e.getY(), 0, 0);
         }
 
         public void mouseReleased(MouseEvent e) {             //увеличение масштаба
@@ -591,7 +577,7 @@ public class GraphicsDisplay extends JPanel {
                     zone.MINY = MINY;
                     zone.MAXY = MAXY;
                     selMode = false;
-                    zoom=true;
+                    zoom = true;
                 } else {
                     if (pointToXY(mausePX, 0).y <= pointToXY(e.getX(), 0).y
                             || pointToXY(0, e.getY()).x <= pointToXY(0, mausePY).x)
@@ -610,7 +596,7 @@ public class GraphicsDisplay extends JPanel {
                     zone.MINX = pointToXY(0, mausePY).x;
                     zone.MINY = pointToXY(eX, 0).y;
                     selMode = false;
-                    zoom=true;
+                    zoom = true;
                 }
 
             }
